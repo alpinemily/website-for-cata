@@ -195,13 +195,6 @@ p { margin: 0 0 1.1em; color: var(--text-soft); }
 .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.4rem; }
 .hero-art { position: relative; height: clamp(200px, 24vw, 300px); }
 .hero-art img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius); }
-.sticker {
-  position: absolute; top: -14px; right: -10px; width: 92px; height: 92px; border-radius: 50%;
-  background: var(--lime); color: var(--ink); display: grid; place-items: center; text-align: center;
-  font-family: var(--font-display); font-style: italic; font-size: 1.05rem; line-height: 1.05;
-  border: 1px solid var(--ink); transform: rotate(12deg); animation: bob 6s ease-in-out infinite;
-}
-@keyframes bob { 50% { transform: rotate(4deg) translateY(-6px); } }
 .trio.trio--compact > div { padding: 1.3rem 1.5rem; border-radius: var(--radius-sm); }
 .trio.trio--compact > div::before { width: 2rem; height: 2rem; font-size: .72rem; margin-bottom: .7rem; }
 .trio.trio--compact h3 { font-size: 1.3rem; margin-bottom: .35rem; }
@@ -218,11 +211,11 @@ p { margin: 0 0 1.1em; color: var(--text-soft); }
 /* ---------- Marquee ---------- */
 
 .marquee { overflow: hidden; background: var(--lime); border-block: 1px solid var(--ink); padding: 1rem 0; margin: clamp(1rem, 3vw, 2rem) 0; }
-.marquee-track { display: flex; width: max-content; gap: 2.5rem; animation: marquee 32s linear infinite; }
+.marquee-track { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem 2.5rem; padding: 0 var(--gutter); }
 .marquee span { font-family: var(--font-display); font-size: clamp(1.3rem, 2vw, 1.8rem); white-space: nowrap; line-height: 1; }
 .marquee span:nth-child(even) { font-style: italic; }
+.marquee span:last-child::after { content: none; }
 .marquee span::after { content: "✺"; font-family: var(--font-body); font-size: .6em; margin-left: 2.5rem; vertical-align: middle; }
-@keyframes marquee { to { transform: translateX(-50%); } }
 
 /* ---------- Trio cards ---------- */
 
@@ -425,6 +418,5 @@ p { margin: 0 0 1.1em; color: var(--text-soft); }
 .reveal.in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
-  .marquee-track, .sticker { animation: none; }
   html { scroll-behavior: auto; }
 }
