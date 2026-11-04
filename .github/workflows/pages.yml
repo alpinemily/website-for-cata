@@ -23,8 +23,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      # Publish only the site itself, not the local CMS or repo tooling.
+      - name: Collect site files
+        run: |
+          mkdir _site
+          cp *.html .nojekyll _site/
+          cp -R assets _site/
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4

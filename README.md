@@ -10,6 +10,25 @@ Static site (plain HTML/CSS/JS, no build step) for GitHub Pages.
 - `contact.html`
 - `404.html`
 
+## Editing the site (local CMS)
+Run the visual editor (needs Node 18+, no install step):
+
+```
+npm run cms
+```
+
+Then open http://localhost:4000. The site appears with an editor panel on the right:
+- **Text**: click any heading, paragraph, button or link and type. `Shift+Enter` adds a line break; `⌘B`/`⌘I` for bold/italic.
+- **Links & buttons**: select one to change where it goes.
+- **Images**: click an image to upload a new one (saved to `assets/img/uploads/`) or pick an existing one, and set alt text.
+- **Blocks**: cards, FAQ items, events, list items, menu and footer links can be duplicated, reordered or deleted.
+- **Sections**: move, duplicate, delete, toggle the dark green background, or add new ones from templates.
+- **Pages**: switch pages, edit the tab title and search description, create or delete pages.
+- **Save** (`⌘S`) writes straight into the HTML files. Header and footer edits are copied to every page.
+- **Publish** commits all changes and pushes to GitHub, which redeploys the live site.
+
+The CMS only runs on your machine (localhost) and is never deployed. Its code lives in `cms/`.
+
 ## Deploy to GitHub Pages
 Deploys automatically via `.github/workflows/pages.yml` on every push to `main`.
 

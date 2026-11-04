@@ -1,0 +1,17 @@
+/* Editing-layer styles (local CMS only, never deployed). */
+html { margin-right: var(--cms-panel, 340px); }
+/* Fixed/sticky site chrome should leave room for the panel too. */
+html .nav { right: 0; }
+
+.cms-editing .reveal { opacity: 1 !important; transform: none !important; }
+.cms-editing .marquee-track { animation: none !important; }
+
+.cms-editing [contenteditable="true"] { cursor: text; transition: outline-color .15s; outline: 1px dashed transparent; outline-offset: 3px; }
+.cms-editing [contenteditable="true"]:hover { outline-color: rgba(120, 150, 40, .7); }
+.cms-editing [contenteditable="true"]:focus { outline: 2px solid #9bbf1f; outline-offset: 3px; }
+.cms-editing img { cursor: pointer; }
+.cms-editing img:hover { outline: 2px dashed rgba(120, 150, 40, .8); outline-offset: 2px; }
+.cms-editing main > section:hover, .cms-editing main > div:hover { box-shadow: inset 0 0 0 1px rgba(120, 150, 40, .35); }
+
+.cms-selected { outline: 2px solid #9bbf1f !important; outline-offset: 3px; }
+main > .cms-selected { outline-offset: -2px; }

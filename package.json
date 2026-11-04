@@ -1,0 +1,8 @@
+{
+  "name": "website-for-cata",
+  "private": true,
+  "description": "Hi Vibes Supply static site + local visual CMS",
+  "scripts": {
+    "cms": "node cms/server.js"
+  }
+}
