@@ -1,10 +1,5 @@
-/* Editing-layer styles (local CMS only, never deployed). */
-html { margin-right: var(--cms-panel, 340px); }
-/* Fixed/sticky site chrome should leave room for the panel too. */
-html .nav { right: 0; }
-
+/* Editing-layer styles inside the /admin frame (local CMS only, never deployed). */
 .cms-editing .reveal { opacity: 1 !important; transform: none !important; }
-.cms-editing .marquee-track { animation: none !important; }
 
 .cms-editing [contenteditable="true"] { cursor: text; transition: outline-color .15s; outline: 1px dashed transparent; outline-offset: 3px; }
 .cms-editing [contenteditable="true"]:hover { outline-color: rgba(120, 150, 40, .7); }

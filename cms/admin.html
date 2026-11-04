@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Editor — Hi Vibes Supply</title>
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/__cms/admin.css">
+</head>
+<body>
+  <header class="bar">
+    <div class="group">
+      <span class="brand">✺ Editor</span>
+      <select id="page" title="Page"></select>
+      <div class="menu">
+        <button id="page-menu-btn" title="Page options">Page ▾</button>
+        <div class="dropdown" id="page-menu">
+          <label>Browser tab title<input id="meta-title"></label>
+          <label>Search description<textarea id="meta-desc" rows="3"></textarea></label>
+          <div class="row">
+            <button id="new-page">+ New page</button>
+            <button id="delete-page" class="danger">Delete page</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu">
+        <button id="add-btn" title="Add a section">+ Section ▾</button>
+        <div class="dropdown list" id="add-menu"></div>
+      </div>
+    </div>
+
+    <div class="group devices" role="group" aria-label="Preview width">
+      <button data-w="100%" class="on" title="Desktop">Desktop</button>
+      <button data-w="834px" title="Tablet">Tablet</button>
+      <button data-w="390px" title="Phone">Phone</button>
+    </div>
+
+    <div class="group">
+      <span id="status" class="status">Loading…</span>
+      <button id="undo" title="Undo last block change">Undo</button>
+      <button id="preview" title="Turn editing off to click around normally">Preview</button>
+      <button id="save" class="primary" title="Save (⌘S)">Save</button>
+      <button id="publish" title="Commit and push to GitHub">Publish</button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <iframe id="frame" title="Site being edited"></iframe>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <dialog id="publish-dialog">
+    <form method="dialog">
+      <h2>Publish to the live site</h2>
+      <p id="publish-summary"></p>
+      <label>Describe the change<input id="publish-msg" value="Update site content"></label>
+      <pre id="publish-log" hidden></pre>
+      <div class="row end">
+        <button value="cancel">Cancel</button>
+        <button id="publish-go" value="go" class="primary">Publish</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/__cms/admin.js"></script>
+</body>
+</html>

@@ -236,6 +236,7 @@ async function api(req, res, url) {
 
 // ---------- static files ----------
 
+const CMS_ASSETS = new Set(['editor.js', 'editor.css', 'admin.js', 'admin.css']);
 const INJECT = `
 <link rel="stylesheet" href="/__cms/editor.css">
 <script src="/__cms/editor.js" defer></script>
@@ -243,10 +244,14 @@ const INJECT = `
 
 async function serveStatic(req, res, url) {
   let rel = decodeURIComponent(url.pathname);
+  // The full-page editor app.
+  if (rel === '/admin' || rel === '/admin/') {
+    return send(res, 200, await fsp.readFile(path.join(CMS_DIR, 'admin.html')), MIME['.html']);
+  }
   if (rel.startsWith('/__cms/')) {
-    const f = path.join(CMS_DIR, path.basename(rel));
-    if (!['editor.js', 'editor.css'].includes(path.basename(rel))) return send(res, 404, 'Not found', 'text/plain');
-    return send(res, 200, await fsp.readFile(f), MIME[path.extname(f)]);
+    const name = path.basename(rel);
+    if (!CMS_ASSETS.has(name)) return send(res, 404, 'Not found', 'text/plain');
+    return send(res, 200, await fsp.readFile(path.join(CMS_DIR, name)), MIME[path.extname(name)]);
   }
   if (rel.endsWith('/')) rel += 'index.html';
   const file = path.resolve(ROOT, '.' + rel);
@@ -259,7 +264,8 @@ async function serveStatic(req, res, url) {
     return send(res, 404, notFound, MIME['.html']);
   }
   const ext = path.extname(file).toLowerCase();
-  if (ext === '.html' && path.dirname(file) === ROOT) {
+  // Pages loaded inside /admin (with ?edit) get the editing layer; the plain site stays untouched.
+  if (ext === '.html' && path.dirname(file) === ROOT && url.searchParams.has('edit')) {
     const html = data.toString('utf8').replace('</head>', `${INJECT}</head>`);
     return send(res, 200, html, MIME['.html']);
   }
@@ -285,5 +291,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(`\n  Hi Vibes Supply CMS running at http://localhost:${PORT}\n  Edits save straight into the HTML files in ${ROOT}\n`);
+  console.log(`\n  Hi Vibes Supply CMS: edit at http://localhost:${PORT}/admin  (site preview at http://localhost:${PORT}/)\n  Edits save straight into the HTML files in ${ROOT}\n`);
 });

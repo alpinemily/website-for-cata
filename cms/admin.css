@@ -1,0 +1,66 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  display: flex; flex-direction: column; background: #e9e6df;
+  font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #1b1d18;
+}
+
+.bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 8px 12px; background: #16181a; color: #e8e8e6; position: relative; z-index: 10;
+}
+.group { display: flex; align-items: center; gap: 6px; }
+.brand { font-weight: 700; margin-right: 6px; letter-spacing: .02em; }
+
+button, select, input, textarea {
+  font: inherit; color: #e8e8e6; background: #23262a; border: 1px solid #34383c; border-radius: 6px; padding: 6px 10px;
+}
+button { cursor: pointer; white-space: nowrap; }
+button:hover, select:hover { border-color: #6b7075; }
+button.primary { background: #d7f26b; border-color: #d7f26b; color: #16181a; font-weight: 600; }
+button.danger { color: #ff8a80; }
+button:disabled { opacity: .4; cursor: default; }
+input:focus, textarea:focus, select:focus { outline: none; border-color: #d7f26b; }
+
+.devices { background: #23262a; border-radius: 8px; padding: 2px; }
+.devices button { border: 0; background: transparent; padding: 5px 10px; }
+.devices button.on { background: #3a3e43; }
+
+.status { font-size: 12px; color: #9aa0a6; margin-right: 4px; }
+.status.dirty { color: #f6c453; }
+
+.menu { position: relative; }
+.dropdown {
+  display: none; position: absolute; top: calc(100% + 6px); left: 0; width: 320px; padding: 12px;
+  background: #16181a; border: 1px solid #34383c; border-radius: 10px; box-shadow: 0 16px 40px rgba(0,0,0,.35);
+}
+.dropdown.open { display: block; }
+.dropdown label { display: block; color: #c4c7c5; font-size: 12px; margin-bottom: 10px; }
+.dropdown input, .dropdown textarea { display: block; width: 100%; margin-top: 4px; }
+.dropdown.list { width: 220px; padding: 6px; }
+.dropdown.list button { display: block; width: 100%; text-align: left; border: 0; background: transparent; padding: 8px 10px; }
+.dropdown.list button:hover { background: #23262a; }
+.dropdown .hint { color: #9aa0a6; font-size: 12px; margin: 4px 10px 6px; }
+.row { display: flex; gap: 6px; }
+.row > * { flex: 1; }
+.row.end { justify-content: flex-end; }
+.row.end > * { flex: 0 0 auto; }
+
+.stage { flex: 1; display: flex; justify-content: center; overflow: hidden; }
+#frame { width: 100%; height: 100%; border: 0; background: #f4efe6; transition: width .25s ease; }
+.stage.framed #frame { box-shadow: 0 0 0 1px rgba(0,0,0,.08), 0 20px 50px rgba(0,0,0,.15); }
+
+.toast {
+  position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: #d7f26b; color: #16181a;
+  padding: 9px 16px; border-radius: 8px; font-weight: 600; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 20;
+}
+.toast.show { opacity: 1; }
+.toast.err { background: #ff8a80; }
+
+dialog { border: 0; border-radius: 12px; padding: 20px; width: min(520px, 92vw); background: #16181a; color: #e8e8e6; }
+dialog::backdrop { background: rgba(0,0,0,.45); }
+dialog h2 { margin: 0 0 8px; font-size: 16px; }
+dialog p { color: #c4c7c5; margin: 0 0 14px; }
+dialog label { display: block; font-size: 12px; color: #c4c7c5; margin-bottom: 14px; }
+dialog input { display: block; width: 100%; margin-top: 4px; }
+dialog pre { white-space: pre-wrap; background: #0e0f10; padding: 10px; border-radius: 6px; font-size: 11px; max-height: 240px; overflow: auto; }
