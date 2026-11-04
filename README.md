@@ -7,7 +7,6 @@ Static site (plain HTML/CSS/JS, no build step) for GitHub Pages.
 - `about.html`
 - `coaching.html` — 1:1 coaching + integration (`#integration`)
 - `gatherings.html` — retreats, workshops, events calendar (`#calendar`)
-- `advisory.html` — consulting/advisory + speaking (`#speaking`)
 - `contact.html`
 - `404.html`
 

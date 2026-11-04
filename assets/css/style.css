@@ -221,7 +221,7 @@ p { margin: 0 0 1.1em; color: var(--text-soft); }
 
 .trio-head { display: flex; justify-content: space-between; align-items: end; gap: 2rem; margin-bottom: clamp(2rem, 4vw, 3.5rem); }
 .trio-head h2 { margin: 0; }
-.trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; counter-reset: card; }
+.trio { display: grid; grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 1.2rem; counter-reset: card; }
 .trio > div {
   counter-increment: card;
   position: relative; display: flex; flex-direction: column;
@@ -242,7 +242,7 @@ p { margin: 0 0 1.1em; color: var(--text-soft); }
 .section--sage .trio > div { background: var(--olive-2); border-color: var(--line); }
 .section--sage .trio > div::before { background: var(--lime); color: var(--ink); }
 .trio > div:nth-child(2)::before { background: var(--clay); }
-@media (max-width: 860px) { .trio { grid-template-columns: 1fr; } .trio > div { min-height: 0; } }
+@media (max-width: 860px) { .trio { grid-auto-flow: row; grid-template-columns: 1fr; } .trio > div { min-height: 0; } }
 
 /* ---------- Feature rows ---------- */
 
@@ -278,7 +278,7 @@ p { margin: 0 0 1.1em; color: var(--text-soft); }
 .thumbs { display: grid; grid-template-columns: repeat(var(--cols, 5), 1fr); gap: 1rem; margin-top: 1rem; }
 .thumb { text-decoration: none; display: block; }
 .thumb img {
-  width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: var(--radius-sm); margin-bottom: .9rem;
+  width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--radius-sm); margin-bottom: .9rem;
   transition: transform .4s ease, filter .4s ease;
 }
 .thumb:hover img { transform: translateY(-6px); filter: saturate(1.2); }
