@@ -137,18 +137,30 @@
     if (cms?.isDirty() && !(await cms.save())) return;
     const st = await (await fetch(`${API}/status`)).json();
     const n = st.changes.length;
-    $('#publish-summary').textContent = `${n ? `${n} changed file${n > 1 ? 's' : ''} will be committed. ` : ''}Everything on branch “${st.branch}” will be pushed to GitHub, which redeploys the live site in a minute or two.`;
-    $('#publish-log').hidden = true; $('#publish-go').disabled = false; $('#publish-go').textContent = 'Publish';
+    $('#publish-details').hidden = true; $('#publish-go').disabled = false; $('#publish-go').textContent = 'Publish';
+    if (!st.git) {
+      $('#publish-summary').textContent = 'Your changes are saved on this computer. To put them on the live site, open GitHub Desktop, click “Commit to main”, then “Push origin”.';
+      $('#publish-go').disabled = true;
+    } else {
+      $('#publish-summary').textContent = `${n ? `${n} changed file${n > 1 ? 's' : ''} will be published. ` : 'Nothing new to publish, but any earlier unpublished versions will be sent. '}The live site updates a minute or two after publishing.`;
+    }
     dlg.showModal();
   });
   $('#publish-go').addEventListener('click', async (e) => {
     e.preventDefault();
     $('#publish-go').disabled = true; $('#publish-go').textContent = 'Publishing…';
     const j = await post(`${API}/publish`, { message: $('#publish-msg').value });
-    $('#publish-log').hidden = false; $('#publish-log').textContent = j.log || j.error || '';
-    $('#publish-go').textContent = j.ok ? 'Done' : 'Failed';
-    if (j.ok) { toast('Published! The live site updates in a minute or two.'); setTimeout(() => dlg.close(), 1200); }
-    else toast(j.error || 'Publish failed', true);
+    $('#publish-log').textContent = j.log || '';
+    if (j.ok) {
+      $('#publish-go').textContent = 'Done';
+      toast('Published! The live site updates in a minute or two.');
+      setTimeout(() => dlg.close(), 1200);
+    } else {
+      // Plain-language explanation up front; technical details only on request.
+      $('#publish-summary').textContent = j.error || 'Publishing didn’t work. Your changes are still saved.';
+      $('#publish-go').textContent = 'Try again'; $('#publish-go').disabled = false;
+      $('#publish-details').hidden = !j.log;
+    }
   });
 
   // ---------- keyboard + leaving ----------

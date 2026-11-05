@@ -109,6 +109,21 @@ function spliceBody(html, bodyInner) {
   return html.replace(BODY_RE, (_, open, _old, close) => `${open}\n${bodyInner.trim()}\n${close}`);
 }
 
+// On macOS, /usr/bin/git is a stub that pops up an installer if developer tools are missing,
+// so check for a real git before calling it.
+let gitOk;
+async function gitAvailable() {
+  if (gitOk !== undefined) return gitOk;
+  if (process.platform === 'darwin') {
+    const real = ['/opt/homebrew/bin/git', '/usr/local/bin/git'].some((p) => fs.existsSync(p))
+      || (await run('xcode-select', ['-p'])).ok;
+    if (!real) return (gitOk = false);
+  }
+  return (gitOk = (await run('git', ['--version'])).ok);
+}
+
+const NO_GIT = 'Publishing from the editor needs Git, which isn’t installed on this computer. Your changes are saved. To publish, open GitHub Desktop, click “Commit to main”, then “Push origin”.';
+
 function run(cmd, args) {
   return new Promise((resolve) => {
     execFile(cmd, args, { cwd: ROOT, maxBuffer: 4 * 1024 * 1024 }, (err, stdout, stderr) => {
@@ -210,24 +225,43 @@ async function api(req, res, url) {
   }
 
   if (route === 'GET /__cms/api/status') {
+    if (!(await gitAvailable())) return send(res, 200, { git: false, changes: [], branch: 'main' });
     const st = await run('git', ['status', '--porcelain']);
     const branch = await run('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
-    return send(res, 200, { changes: st.stdout.split('\n').filter(Boolean), branch: branch.stdout.trim() });
+    return send(res, 200, { git: true, changes: st.stdout.split('\n').filter(Boolean), branch: branch.stdout.trim() });
   }
 
   if (route === 'POST /__cms/api/publish') {
+    if (!(await gitAvailable())) return send(res, 500, { error: NO_GIT });
     const { message } = await readJson(req);
     const msg = String(message || '').trim() || 'Update site content';
     const log = [];
     const step = async (args) => { const r = await run('git', args); log.push(`$ git ${args.join(' ')}\n${r.stdout}${r.stderr}`); return r; };
+    const fail = (error) => send(res, 500, { error, log: log.join('\n') });
     await step(['add', '-A', '--', '.', ':!cms/node_modules']);
     const staged = await run('git', ['diff', '--cached', '--quiet']);
     if (!staged.ok) {
       const c = await step(['commit', '-m', msg]);
-      if (!c.ok) return send(res, 500, { error: 'Commit failed', log: log.join('\n') });
+      if (!c.ok) {
+        if (/user\.(name|email)|Please tell me who you are/i.test(c.stderr + c.stdout)) {
+          return fail('Git doesn’t know your name yet. Open GitHub Desktop once and sign in (it sets this up), then click Publish again.');
+        }
+        return fail('Couldn’t save a version of your changes. Your edits are still saved; try publishing from GitHub Desktop.');
+      }
+    }
+    // Pick up anyone else's published edits first so the push isn't rejected.
+    const pull = await step(['pull', '--rebase']);
+    if (!pull.ok) {
+      await run('git', ['rebase', '--abort']);
+      return fail('Someone else published changes to the same text. Your edits are saved. Open GitHub Desktop to sort it out, or ask for help.');
     }
     const p = await step(['push']);
-    if (!p.ok) return send(res, 500, { error: 'Push failed', log: log.join('\n') });
+    if (!p.ok) {
+      if (/permission|denied|403|authentication|could not read username/i.test(p.stderr)) {
+        return fail('GitHub didn’t accept the upload. Make sure you’re signed in to GitHub Desktop and have access to this website’s repository, then click “Push origin” in GitHub Desktop.');
+      }
+      return fail('Couldn’t reach GitHub. Check your internet connection and try again, or click “Push origin” in GitHub Desktop.');
+    }
     return send(res, 200, { ok: true, committed: !staged.ok, log: log.join('\n') });
   }
 
@@ -290,6 +324,44 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, HOST, () => {
-  console.log(`\n  Hi Vibes Supply CMS: edit at http://localhost:${PORT}/admin  (site preview at http://localhost:${PORT}/)\n  Edits save straight into the HTML files in ${ROOT}\n`);
+const OPEN = process.argv.includes('--open');
+const ADMIN_URL = `http://localhost:${PORT}/admin`;
+
+function openBrowser(url) {
+  const [cmd, args] = process.platform === 'darwin' ? ['open', [url]]
+    : process.platform === 'win32' ? ['cmd', ['/c', 'start', '', url]]
+    : ['xdg-open', [url]];
+  execFile(cmd, args, () => {});
+}
+
+// Bring in the latest published version before editing, if nothing local is unsaved.
+async function syncOnLaunch() {
+  if (!(await gitAvailable())) return;
+  const st = await run('git', ['status', '--porcelain']);
+  if (!st.ok || st.stdout.trim()) return; // local changes: leave them alone
+  const r = await run('git', ['pull', '--ff-only']);
+  if (r.ok && !/Already up to date/i.test(r.stdout)) console.log('  Downloaded the latest version of the site from GitHub.');
+}
+
+server.on('error', async (err) => {
+  if (err.code === 'EADDRINUSE') {
+    // Probably the editor is already running (e.g. launched twice). If so, just open it.
+    const alive = await fetch(`http://localhost:${PORT}/__cms/api/pages`).then((r) => r.ok).catch(() => false);
+    if (alive) {
+      console.log(`\n  The editor is already running. Opening ${ADMIN_URL}\n`);
+      if (OPEN) openBrowser(ADMIN_URL);
+      process.exit(0);
+    }
+    console.error(`\n  Port ${PORT} is being used by another program. Close it, or run with PORT=4001.\n`);
+    process.exit(1);
+  }
+  throw err;
 });
+
+(async () => {
+  await syncOnLaunch().catch(() => {});
+  server.listen(PORT, HOST, () => {
+    console.log(`\n  ✺ Hi Vibes Supply website editor is running.\n\n  Edit:     ${ADMIN_URL}\n  Preview:  http://localhost:${PORT}/\n\n  Keep this window open while you edit. Close it when you're done.\n`);
+    if (OPEN) openBrowser(ADMIN_URL);
+  });
+})();
